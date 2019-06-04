@@ -5,6 +5,10 @@ import time
 
 DB_URI = "localhost"
 DB_PORT = 27017
+DB_USER = ""
+DB_PASS = ""
+
+MAX_THREADS = 5
 
 PROVIDER = Web3.HTTPProvider("https://mainnet.infura.io/v3/d2bda2c2e7d0463ab1dd077566fb2e3f")
 
@@ -16,7 +20,7 @@ class EthereumCrawler(object):
 
     def __init__(self, _mode, _name="ethereum_store", _provider = PROVIDER):
         self.name = _name
-        self.db_handler = MongoHandler(_name)
+        self.db_handler = MongoHandler(_name, _uri = DB_URI, _port = DB_PORT, _user = DB_USER, _pw=DB_PASS)
         self.web3 = Web3(PROVIDER)
         self.init_height = self.web3.eth.blockNumber
         self.indexer = LocalIndexer(_name)
