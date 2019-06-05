@@ -7,3 +7,10 @@ def createDatabaseParams(_db):
       "passwd" : "Whiskey1031!",
       "database" : _db
     }
+
+
+DB = "important_addresses"
+
+
+BTC_INSERT_FRAME = "INSERT INTO bitcoin (`address`, `chain_id`, `label`, `tag_1`, `tag_2`, `notes`) VALUES ('{address}',{chain_id},'{label}','{tag_1}','{tag_2}','{notes}');"
+ETH_INSERT_FRAME = "INSERT INTO ethereum (`address`, `chain_id`, `label`, `tag_1`, `tag_2`, `notes`) VALUES ('{address}',{chain_id},'{label}','{tag_1}','{tag_2}','{notes}');"
