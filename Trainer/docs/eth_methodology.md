@@ -65,6 +65,47 @@
 
  PARTIAL SOURCE: https://towardsdatascience.com/clustering-ethereum-addresses-18aeca61919d
 
+**Query**
+
+`CREATE TABLE static_tokenized_set (
+    idx INT AUTO_INCREMENT,
+    address VARCHAR(100) UNIQUE,
+    outgoing_txs INT,
+    incoming_txs INT,
+    ttl_eth_sent FLOAT,
+    avg_eth_sent FLOAT,
+    ttl_usd_sent FLOAT,
+    avg_usd_sent FLOAT,
+    ttl_eth_recv FLOAT,
+    avg_eth_recv FLOAT,
+    ttl_usd_recv FLOAT,
+    avg_usd_recv FLOAT,
+    active_months INT,
+    monthly_out_txs INT,
+    monthly_incoming_txs INT,
+    monthly_eth_sent FLOAT,
+    monthly_usd_sent FLOAT,
+    monthly_eth_recv FLOAT,
+    monthly_usd_recv FLOAT,
+    contracts_created INT,
+    contract_txs_sent INT,
+    incoming_avg_txs_time FLOAT,
+    incoming_std_txs_time FLOAT,
+    num_tokens_used FLOAT,
+    eth_balance FLOAT,
+    ttl_fee_sent FLOAT,
+    avg_fee_sent FLOAT,
+    num_internal_txs INT,
+    num_external_txs INT,
+    external_internal_ratio FLOAT,
+    failed_txs INT,
+    successful_txs INT,
+    fail_success_txs_ratio FLOAT,
+    mined_blocks INT,
+    PRIMARY KEY (idx)
+ );`mysql
+
+
 # Meta Metrics (Deep Info)
 
  - Times sent to a particular tag address
