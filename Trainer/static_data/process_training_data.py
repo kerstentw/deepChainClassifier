@@ -4,6 +4,13 @@ import time
 from web3 import Web3
 import math
 
+DEBUG = True
+
+def debug_print(_msg = "message"):
+    if DEBUG:
+        print("RUN-TIME MESSAGE ::: %s \n\n" % _msg)
+
+
 PROVIDER = Web3.HTTPProvider("https://mainnet.infura.io/v3/27f94aaf0b9b468fae7c869394b23ed0")
 web3 = Web3(PROVIDER)
 
@@ -52,7 +59,7 @@ INSERT INTO static_tokenized_set (
     fail_success_txs_ratio,
     mined_blocks
     ) VALUES (
-        {address},
+        '{address}',
         {outgoing_txs},
         {incoming_txs},
         {ttl_eth_sent},
@@ -97,6 +104,8 @@ class InsertStructCreator(object):
         # TODO: Refactor this after writing production loops in
         # ... __createExternalTransactionVariables and
         # ... __createInternalTransactionVariables
+
+        debug_print(_addr_data.get("addr"))
 
         self.total_trans = 0
         self.timestamp_array = []
@@ -150,10 +159,10 @@ class InsertStructCreator(object):
         self.ttl_fee_sent = 0 #
         self.avg_fee_sent = 0 #
 
-        self.num_internal_tx = len(self.addr_data.get("internal_tx_list")) #
+        self.num_internal_txs = len(self.addr_data.get("internal_tx_list")) #
         self.num_external_txs = len(self.addr_data.get("tx_list")) #
 
-        self.external_internal_ratio = self.num_external_txs / float(self.num_internal_tx) if self.num_external_txs > 0 else 0 #
+        self.external_internal_ratio = self.num_external_txs / float(self.num_internal_txs) if self.num_internal_txs > 0 else 0 #
 
 
         self.failed_txs = 0 #
@@ -195,7 +204,7 @@ class InsertStructCreator(object):
         filtered_array = list(set(self.timestamp_array))
 
         for timestamp in filtered_array:
-            if previous = 0:
+            if previous == 0:
                 previous = timestamp
                 continue
 
@@ -216,8 +225,14 @@ class InsertStructCreator(object):
 
     def __determineIfContractAndIncrement(self, _transaction):
         to = _transaction.get("to")
+
+        if len(to) == 0 or to.startswith("0x") == False:
+            return False
+
+        to = web3.toChecksumAddress(to)
+
         storage = web3.eth.getCode(to)
-        if storage.startswith("0x6060604052") or storage.startswith("0x6080604052"):
+        if storage.hex().startswith("0x6060604052") or storage.hex().startswith("0x6080604052"):
             self.contract_txs_sent += 1
             return True
 
@@ -238,6 +253,12 @@ class InsertStructCreator(object):
         differential = self.latest_trans - self.earliest_trans
         self.active_months = differential / mon_secs
 
+    def __validateRun(self,_type):
+        if _type == "tx_list":
+            self.has_external_run = True
+        elif _type == "internal_tx_list":
+            self.has_inner_run = True
+
     def __createTransactionVariables(self, _type): # type is: tx_list OR internal_tx_list
         """
           Fuck this fucking function.
@@ -249,18 +270,29 @@ class InsertStructCreator(object):
         tx_list = self.addr_data.get(_type)
 
         # ========== Pre-Loop ==========
-        self.num_external_txs = len(tx_list)
+        if _type == "tx_list":
+            self.num_external_txs = len(tx_list)
+        elif _type == "internal_tx_list":
+            self.num_internal_txs = len(tx_list)
+
+        if len(tx_list) == 0:
+            debug_print("no transactions for %s" % _type)
+            self.__validateRun(_type)
+            return
+
         self.active_months = 0
 
         # ========== Loop ==========
         for transaction in tx_list:
-            self.timestamp_array.append(int(transaction.get("timestamp")))
-            self.__determineIfContractAndIncrement()
+            debug_print("running TRANSACTION: %s" % transaction)
+
+            self.timestamp_array.append(int(transaction.get("timeStamp")))
+            self.__determineIfContractAndIncrement(transaction)
 
             if len(transaction.get("contractAddress")) > 0:
                 self.contracts_created += 1
 
-            price = self.__grabPriceAtTime(transaction.get("timestamp"))
+            price = self.__grabPriceAtTime(transaction.get("timeStamp"))
 
             is_success = bool(transaction.get("isError") == "0")
             self.ttl_fee_sent += int(transaction.get("gas"))
@@ -288,10 +320,8 @@ class InsertStructCreator(object):
 
 
         # ========== Cleanup ==========
-        if _type == "tx_list":
-            self.has_external_run = True
-        elif _type == "internal_tx_list":
-            self.has_inner_run = True
+        self.__validateRun(_type)
+        debug_print("finished getting %s" % _type)
 
         return True
 
@@ -333,15 +363,18 @@ class InsertStructCreator(object):
         I want explict and self-validating structures popping
         out of this thing while only looping through the structures once
         """
-        try:
-            self.__createExternalTransactionVariables()
-            self.__createInternalTransactionVariables()
-            self.__generateAverages()
-            self.__determineTimeDiffs()
-        except:
-            return False
+        debug_print("creating tx_list vars")
+        self.__createTransactionVariables("tx_list")
 
-        return True
+        debug_print("creating internal tx_list vars")
+        self.__createTransactionVariables("internal_tx_list")
+
+        debug_print("creating generate averages")
+        self.__generateAverages()
+
+        debug_print("creating time diffs")
+        self.__determineTimeDiffs()
+
 
     def assembleStruct(self):
         return {
@@ -377,26 +410,17 @@ class InsertStructCreator(object):
           "failed_txs" : self.failed_txs,
           "successful_txs" : self.successful_txs,
           "fail_success_txs_ratio" : self.fail_success_txs_ratio,
-          "mined_blocks" : self.mined_blocks
+          "mined_blocks" : len(self.mined_blocks)
         }
 
     def dump(self):
         self.createTransactionVariables()
-        return assembleStruct()
+        return self.assembleStruct()
 
 
 
 class StaticClassifier(object):
     def __init__(self, _db_name):
-        self.my_db = mysql.connector.connect(
-          host = "ec2-3-84-247-12.compute-1.amazonaws.com",
-          port = 8899,
-          user = "proofAdmin",
-          passwd = "Whiskey1031!",
-          database = _db_name
-        )
-
-        self.my_cursor = self.my_db.cursor()
         self.db_name = _db_name
 
     def makeGetRequestToAPI(self, _ep):
@@ -432,17 +456,27 @@ class StaticClassifier(object):
         return {"mined_blocks": resp.get("result")}
 
     def pullTokenListFromDB(self):
+        self.my_db = mysql.connector.connect(
+          host = "ec2-3-84-247-12.compute-1.amazonaws.com",
+          port = 8899,
+          user = "proofAdmin",
+          passwd = "Whiskey1031!",
+          database = self.db_name
+        )
+
+        self.my_cursor = self.my_db.cursor()
+
         self.my_cursor.execute("SELECT * FROM ethereum;")
         return [x[1] for x in self.my_cursor] #SAMPLE: (5992, '0x0bb4251b8c5e8acb27d6809d77a10aa1cacc5144', 1, 'scam', 'Exchange', 'gdax.us', None, None, None, None, None, None, None, None, 'Fake exchange (same as your-btc.co.uk)')
 
     def createAndValidateInfoDict(self, _addr):
         insert_struct = {}
 
-        insert_struct.update(self.getAddressBalance())
-        insert_struct.update(self.getNormalTransactions())
-        insert_struct.update(self.getInternalTransactions())
-        insert_struct.update(self.getTokenTransactions())
-        insert_struct.update(self.getMinedBlocks())
+        insert_struct.update(self.getAddressBalance(_addr))
+        insert_struct.update(self.getNormalTransactions(_addr))
+        insert_struct.update(self.getInternalTransactions(_addr))
+        insert_struct.update(self.getTokenTransactions(_addr))
+        insert_struct.update(self.getMinedBlocks(_addr))
         insert_struct.update({"addr" : _addr})
 
         return insert_struct
@@ -452,14 +486,32 @@ class StaticClassifier(object):
         return StructCreator.dump()
 
     def insertOneStructIntoDB(self, _insert_struct):
+        self.my_db = mysql.connector.connect(
+          host = "ec2-3-84-247-12.compute-1.amazonaws.com",
+          port = 8899,
+          user = "proofAdmin",
+          passwd = "Whiskey1031!",
+          database = self.db_name
+        )
+
+        self.my_cursor = self.my_db.cursor()
+
         insert_query = INSERT_FRAME.format(**_insert_struct)
+        debug_print("insert_query %s" % insert_query)
         self.my_cursor.execute(insert_query)
         self.my_db.commit()
 
     def run(self):
+        debug_print("Running: getting token List")
         account_list = self.pullTokenListFromDB()
+        debug_print("list got!  Has %s entries" % len(account_list))
+
         for account in account_list:
+            debug_print("...on account %s" % account)
+
             addr_struct = self.createAndValidateInfoDict(account)
+            debug_print("got address structs")
+
             insert_struct = self.createInsertStruct(addr_struct)
             self.insertOneStructIntoDB(insert_struct)
         print("Finished")
