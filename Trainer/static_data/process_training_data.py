@@ -12,7 +12,7 @@ def debug_print(_msg = "message"):
         print("RUN-TIME MESSAGE ::: %s \n\n" % _msg)
 
 def genRandomSleep(_start):
-    return random.randint(_start) * .01
+    return random.randint(0,_start) * .01
 
 
 BASE_START = 5
