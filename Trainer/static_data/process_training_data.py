@@ -3,12 +3,20 @@ import mysql.connector
 import time
 from web3 import Web3
 import math
+import random
 
 DEBUG = True
 
 def debug_print(_msg = "message"):
     if DEBUG:
         print("RUN-TIME MESSAGE ::: %s \n\n" % _msg)
+
+def genRandomSleep(_start):
+    return random.randint(_start) * .01
+
+
+BASE_START = 5
+
 
 
 PROVIDER = Web3.HTTPProvider("https://mainnet.infura.io/v3/27f94aaf0b9b468fae7c869394b23ed0")
@@ -284,6 +292,8 @@ class InsertStructCreator(object):
 
         # ========== Loop ==========
         for transaction in tx_list:
+            time.sleep(genRandomSleep(BASE_START))
+
             debug_print("running TRANSACTION: %s" % transaction)
             self.__setTimeDistribution(transaction.get("timeStamp"))
             self.timestamp_array.append(int(transaction.get("timeStamp")))
