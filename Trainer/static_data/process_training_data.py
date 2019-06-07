@@ -249,8 +249,8 @@ class InsertStructCreator(object):
             self.latest_trans = ts
 
     def __determineMonthNumber(self):
-        mon_secs = 2635200.0
-        differential = self.latest_trans - self.earliest_trans
+        mon_secs = 2592000
+        differential = self.latest_trans  - self.earliest_trans
         self.active_months = differential / mon_secs
 
     def __validateRun(self,_type):
@@ -285,7 +285,7 @@ class InsertStructCreator(object):
         # ========== Loop ==========
         for transaction in tx_list:
             debug_print("running TRANSACTION: %s" % transaction)
-
+            self.__setTimeDistribution(transaction.get("timeStanp"))
             self.timestamp_array.append(int(transaction.get("timeStamp")))
             self.__determineIfContractAndIncrement(transaction)
 
