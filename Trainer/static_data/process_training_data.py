@@ -285,7 +285,7 @@ class InsertStructCreator(object):
         # ========== Loop ==========
         for transaction in tx_list:
             debug_print("running TRANSACTION: %s" % transaction)
-            self.__setTimeDistribution(transaction.get("timeStanp"))
+            self.__setTimeDistribution(transaction.get("timeStamp"))
             self.timestamp_array.append(int(transaction.get("timeStamp")))
             self.__determineIfContractAndIncrement(transaction)
 
