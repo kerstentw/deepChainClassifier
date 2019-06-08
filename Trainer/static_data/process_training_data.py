@@ -16,7 +16,7 @@ def genRandomSleep(_start):
 
 
 BASE_START = 5
-
+START_POINT = "0xe41d2489571d322189246dafa5ebde1f4699f498"
 
 
 PROVIDER = Web3.HTTPProvider("https://mainnet.infura.io/v3/27f94aaf0b9b468fae7c869394b23ed0")
@@ -516,15 +516,30 @@ class StaticClassifier(object):
         account_list = self.pullTokenListFromDB()
         debug_print("list got!  Has %s entries" % len(account_list))
 
-        for account in account_list:
-            debug_print("...on account %s" % account)
+        try:
+            for account in account_list[account_list.index(START_POINT) + 1::]:
+                debug_print("...on account %s" % account)
 
-            addr_struct = self.createAndValidateInfoDict(account)
-            debug_print("got address structs")
+                addr_struct = self.createAndValidateInfoDict(account)
+                debug_print("got address structs")
 
-            insert_struct = self.createInsertStruct(addr_struct)
-            self.insertOneStructIntoDB(insert_struct)
+                insert_struct = self.createInsertStruct(addr_struct)
+                self.insertOneStructIntoDB(insert_struct)
+
+            return "Finished"
+
+        except:
+            return account
+
         print("Finished")
 
 SC = StaticClassifier("important_addresses")
-SC.run()
+cur_acct = None
+
+while cur_acct != "Finished":
+    try:
+        SC = StaticClassifier("important_addresses")
+        cur_acct = SC.run()
+    except:
+        print("Errored out on %s" % cur_acct)
+        time.sleep(60)
