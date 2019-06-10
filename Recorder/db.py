@@ -28,4 +28,11 @@ class MongoHandler(object):
 
     def insertMany(self, _collection, _array):
         # TODO: Validation goes Here
+        print("TRANSARRAY: %s" % _array)
         return self.db[_collection].insert_many(_array)
+
+    def pullFullCollection(self,_collection):
+        # TODO: Validation goes Here
+        # This is a dangerous function that can put a huuuuuuge Load
+        # on a Database... may have to create a buffer.
+        return self.db[_collection].find()
