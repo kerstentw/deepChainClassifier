@@ -105,9 +105,6 @@ class EthTransactionCrawler(object):
         cur_ref = self.setIndexer()
         idx = cur_ref
 
-        print(cur_ref)
-        input()
-
         for block_struct in iterator:
             if block_struct.get("number") < cur_ref:
                 continue
