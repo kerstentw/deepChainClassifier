@@ -14,10 +14,20 @@ class MongoHandler(object):
         if _user and _pw and _auth_source:
             print("CONNECTING WITH AUTH")
             uri = "%s:%s" % (_uri, _port)
-            self.client = pymongo.MongoClient(uri, _port, username=_user, password=_pw, authSource = _auth_source)
+            self.client = pymongo.MongoClient(uri,
+                                              _port,
+                                              username=_user,
+                                              password=_pw,
+                                              authSource = _auth_source)
         else:
             print("CONNECTING WITH NO AUTH")
             self.client = pymongo.MongoClient(_uri, _port)
+
+        self.uri = _uri
+        self.port = _port
+        self.passwd = _pw
+        self.authSource = _auth_source
+        self.user = _user
 
         self.db = self.client[_db_name]
         self.validator = _validator() if _validator else None
@@ -36,3 +46,16 @@ class MongoHandler(object):
         # This is a dangerous function that can put a huuuuuuge Load
         # on a Database... may have to create a buffer.
         return self.db[_collection].find()
+
+    def refreshClient(self):
+        if self.user and self.passwd and _auth_source:
+            print("REFRESHING WITH AUTH")
+            uri = "%s:%s" % (self.uri, self.port)
+            self.client = pymongo.MongoClient(self.uri,
+                                              self.port,
+                                              username=self.user,
+                                              password=self.passwd,
+                                              authSource = self.auth_source)
+        else:
+            print("REFRESHING WITH NO AUTH")
+            self.client = pymongo.MongoClient(self.uri, self.port)
