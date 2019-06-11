@@ -48,7 +48,7 @@ class MongoHandler(object):
         return self.db[_collection].find()
 
     def refreshClient(self):
-        if self.user and self.passwd and _auth_source:
+        if self.user and self.passwd and self.auth_source:
             print("REFRESHING WITH AUTH")
             uri = "%s:%s" % (self.uri, self.port)
             self.client = pymongo.MongoClient(self.uri,
