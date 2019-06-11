@@ -83,7 +83,7 @@ class EthTransactionCrawler(object):
         transaction_infos = self.getTransactions(_block_dict)
         # Ensure transactions exist
         if not transaction_infos: return False
-        db_handler.refreshClient()
+        self.db_handler.refreshClient()
         insert_id = self.db_handler.insertMany(self.mode, transaction_infos)
         return insert_id
 
