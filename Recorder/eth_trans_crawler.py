@@ -61,7 +61,7 @@ class EthTransactionCrawler(object):
 
             if key == "timestamp":
                 pass
-            elif type(block_dict[key]) == int:
+            elif type(block_dict[key]) == int and key != "blockNumber":
                 block_dict[key] = str(block_dict[key])
             else:
                 pass
