@@ -26,7 +26,7 @@ class MongoHandler(object):
         self.uri = _uri
         self.port = _port
         self.passwd = _pw
-        self.authSource = _auth_source
+        self.auth_source = _auth_source
         self.user = _user
 
         self.db = self.client[_db_name]
