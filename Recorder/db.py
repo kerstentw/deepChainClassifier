@@ -45,7 +45,7 @@ class MongoHandler(object):
         # TODO: Validation goes Here
         # This is a dangerous function that can put a huuuuuuge Load
         # on a Database... may have to create a buffer.
-        return self.db[_collection].find({}, no_cursor_timeout=_no_cursor_time_out)
+        return self.db[_collection].find({}, no_cursor_timeout=_no_cursor_timeout)
 
     def refreshClient(self):
         if self.user and self.passwd and self.auth_source:
