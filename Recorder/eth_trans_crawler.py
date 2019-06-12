@@ -88,7 +88,7 @@ class EthTransactionCrawler(object):
         return insert_id
 
     def getMasterBlockList(self):
-        block_iterator = self.db_handler.pullFullCollection("blocks")
+        block_iterator = self.db_handler.pullFullCollection("blocks", True)
         return block_iterator
 
     def setIndexer(self):
@@ -117,6 +117,8 @@ class EthTransactionCrawler(object):
             self.indexer.newRecord({'last_transaction' : idx})
 
             print(block_dict)
+
+        iterator.close()
 
 
 

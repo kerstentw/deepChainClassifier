@@ -41,11 +41,11 @@ class MongoHandler(object):
         print("TRANSARRAY: %s" % _array)
         return self.db[_collection].insert_many(_array)
 
-    def pullFullCollection(self,_collection):
+    def pullFullCollection(self,_collection, _no_cursor_timeout=False):
         # TODO: Validation goes Here
         # This is a dangerous function that can put a huuuuuuge Load
         # on a Database... may have to create a buffer.
-        return self.db[_collection].find()
+        return self.db[_collection].find({}, no_cursor_timeout=_no_cursor_time_out)
 
     def refreshClient(self):
         if self.user and self.passwd and self.auth_source:
