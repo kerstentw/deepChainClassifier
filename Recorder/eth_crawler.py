@@ -65,11 +65,14 @@ class EthereumCrawler(object):
 
 
     def runOngoingRecentBlocksScrape(self):
-        prev_block = self.getLatestHeight()
+        prev_block = None
         cur_block = None
 
         while True:
+            cur_block = self.getLatestHeight()
+
             if prev_block == cur_block:
+                time.sleep(1)
                 continue
 
             block = self.grabBlockFromChain(cur_block)
@@ -77,9 +80,15 @@ class EthereumCrawler(object):
             if not block: continue
             self.insertBlockIntoDB(self.filterReceivedBlock(block))
 
-            preb_block = cur_block
-            cur_block = self.getLatestHeight()
+            prev_block = cur_block
 
-def run():
+def runHist():
     ECrawler = EthereumCrawler("blocks")
     ECrawler.getHistoricals()
+
+def runOngoing():
+    ECrawler = EthereumCrawler("blocks")
+    ECrawler.runOngoingRecentBlocksScrape()
+
+if __name__ == "__main__":
+    runOngoing()
