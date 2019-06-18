@@ -73,9 +73,11 @@ class EthereumCrawler(object):
 
             if prev_block == cur_block:
                 time.sleep(1)
+                print("CurBlock is %s" % cur_block)
                 continue
 
             block = self.grabBlockFromChain(cur_block)
+            print("NEW BLOCK: %s" % block)
 
             if not block: continue
             self.insertBlockIntoDB(self.filterReceivedBlock(block))
