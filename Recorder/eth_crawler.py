@@ -82,6 +82,8 @@ class EthereumCrawler(object):
 
             if not block: continue
             self.insertBlockIntoDB(self.filterReceivedBlock(block))
+            
+            self.indexer.newRecord({"last_block":cur_block})
 
             prev_block = cur_block
 
