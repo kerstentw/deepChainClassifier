@@ -28,6 +28,7 @@ class EthereumCrawler(object):
 
     def getLatestHeight(self):
         self.init_height = self.web3.eth.blockNumber
+        return self.init_height
 
     def filterForHex(self, _field, _key = ""):
         try:
