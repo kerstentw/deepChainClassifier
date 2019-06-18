@@ -82,13 +82,13 @@ class EthereumCrawler(object):
 
             prev_block = cur_block
 
-def runHist():
-    ECrawler = EthereumCrawler("blocks")
-    ECrawler.getHistoricals()
+def runHist(Crawler):
+    Crawler.getHistoricals()
 
-def runOngoing():
-    ECrawler = EthereumCrawler("blocks")
-    ECrawler.runOngoingRecentBlocksScrape()
+def runOngoing(Crawler):
+    Crawler.runOngoingRecentBlocksScrape()
 
 if __name__ == "__main__":
-    runOngoing()
+    ECrawler = EthereumCrawler("blocks")
+    runHist(ECrawler)
+    runOngoing(ECrawler)
