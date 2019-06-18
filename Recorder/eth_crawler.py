@@ -26,14 +26,14 @@ class EthereumCrawler(object):
         self.indexer = LocalIndexer(_name)
         self.mode = _mode
 
-    def getLatestHeight(self, _provider):
+    def getLatestHeight(self):
         self.init_height = self.web3.eth.blockNumber
 
     def filterForHex(self, _field, _key = ""):
         try:
             return _field.hex()
         except:
-            return str(_field) if not _key == "number" else _field 
+            return str(_field) if not _key == "number" else _field
 
     def filterReceivedBlock(self, _block):
         if 'difficulty' not in list(_block.keys()):
