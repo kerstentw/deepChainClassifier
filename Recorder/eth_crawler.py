@@ -29,17 +29,17 @@ class EthereumCrawler(object):
     def getLatestHeight(self, _provider):
         self.init_height = self.web3.eth.blockNumber
 
-    def filterForHex(self, _field):
+    def filterForHex(self, _field, _key = ""):
         try:
             return _field.hex()
         except:
-            return _field
+            return str(_field) if not _key == "number" else _field 
 
     def filterReceivedBlock(self, _block):
         if 'difficulty' not in list(_block.keys()):
             return None
 
-        return {k : self.filterForHex(v) for k,v in _block.items()}
+        return {k : self.filterForHex(v, k) for k,v in _block.items()}
 
     def grabBlockFromChain(self, _block_num):
         return self.web3.eth.getBlock(_block_num) or None
